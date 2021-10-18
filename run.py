@@ -7,7 +7,6 @@ from rmn import RMN
 
 rmn = RMN()
 current_time = 0
-vid1 = cv2.VideoCapture(2)
 
 def time_as_int():
     return int(round(time.time() * 100))
@@ -15,7 +14,7 @@ def time_as_int():
 def janela_inicio():
     sg.theme('Reddit')
     layout = [
-        [sg.Image(filename='pti.png', size=(300, 300))],
+        [sg.Image(filename='images/pti.png', size=(300, 300))],
         [sg.Button("Início", button_color= "#00b2ef", font=("Poppins", 25), size=(10, 1))],
         [sg.Button("Instruções", button_color= "#00ad4e", font=("Poppins", 25), size=(10, 1))],
         [sg.Button("Sair", size=(10, 1), button_color= "#d4181a", font=("Poppins", 25))]
@@ -25,7 +24,7 @@ def janela_inicio():
 def janela_final():
     sg.theme('Reddit')
     layout = [
-        [sg.Image(filename='pti.png' ,size=(300, 300))],
+        [sg.Image(filename='images/pti.png' ,size=(300, 300))],
         [sg.Text("",size=(32,1), justification="center",font=('Poppins', 25, 'bold'), key='mensagem')],
         [sg.Text("N° de Expressões Corretas: ", size=(23,1), font=("Poppins", 18)), sg.Text('0', font=("Poppins", 18), key='scorefinal')],
         [sg.Button("Voltar", button_color= "#00b2ef",size=(10, 1), font=("Poppins", 25))],
@@ -37,12 +36,12 @@ def janela_jogo():
     sg.theme('Reddit')
 
     col1 = [[sg.Text("PROFESSOR",size=(12,1), font=('Poppins', 20, 'bold'), justification="center", key='professor')],
-            [sg.Image(filename='user.png', background_color='white', size=(512, 512),  key='camProfessor')],
+            [sg.Image(filename='images/user.png', background_color='white', size=(412, 412),  key='camProfessor')],
             [sg.Text("",size=(18,1), font=('Poppins', 15), justification="center", key='OutProfessor')]
         ]
 
     col2 = [[sg.Text("ALUNO", size=(12,1),font=('Poppins', 20, "bold"), justification="center", key='aluno')],
-            [sg.Image(filename='user.png', background_color='white', size=(512, 512), key='camAluno')],
+            [sg.Image(filename='images/user.png', background_color='white', size=(412, 412), key='camAluno')],
             [sg.Text("",size=(18,1), font=('Poppins', 15), justification="center", key='OutAluno')]
         ]
 
@@ -65,7 +64,7 @@ def janela_instruction():
     sg.theme('Reddit')
     
     layout = [
-        [sg.Image('rules.png',size=(700,300))],
+        [sg.Image('images/rules.png',size=(700,300))],
         [sg.Button("Voltar", size=(10,1), button_color= "#00b2ef",font=("Poppins", 25))]
     ]
     return sg.Window("Jogo de Expressões",layout=layout, size=(800, 600), element_justification='center', location=(350, 150))
@@ -80,7 +79,7 @@ def janela_final_saida():
     return sg.Window("Jogo de Expressões",layout=layout, size=(400, 200), element_justification='center', location=(550, 250))
 
 def translateEmo(emolabel):
-    emocao = ""
+    # emocao = ""
 
     if(emolabel == 'happy'):
         emocao = "Feliz"
@@ -99,7 +98,7 @@ def translateEmo(emolabel):
 
     return emocao
 
-def capture(janela2, start_time, i): #Captura da Tela do Professor
+def capture(janela2, start_time, i, again=0): #Captura da Tela do Professor
     vid = cv2.VideoCapture(-1)
     maior = 0
     frame_dic = {}
@@ -109,7 +108,7 @@ def capture(janela2, start_time, i): #Captura da Tela do Professor
     img_frame = ""
     emotions = []
     emocao = ""
-    
+
     while current_time <= 500:
         event, values = janela2.read(timeout=10)
 
@@ -169,12 +168,24 @@ def capture(janela2, start_time, i): #Captura da Tela do Professor
         except Exception as err:
             print(err)
             continue
-
-    for i in emotions:                                      # pega a emoção de maior frequência
-        if(emotions.count(i) > maior):
-            maior = emotions.count(i)
-            emotion = i         # emolabel final
     
+    for e in emotions:                                      # pega a emoção de maior frequência
+        if(emotions.count(e) > maior):
+            maior = emotions.count(e)
+            emotion = e         # emolabel final         
+            
+    if len(emotions) <= 0:
+        current_time = 0
+        start_time = time_as_int()
+        while current_time <= 500:
+            event, values = janela2.read(timeout=10)
+            janela2['expressao'].update("Tente Novamente")
+            current_time = time_as_int() - start_time
+        
+        start_time = time_as_int()
+        vid.release()
+        emotion = capture(janela2, start_time, i, again) 
+
     emocao = translateEmo(emotion)
 
     janela2['OutProfessor'].update(emocao, text_color="black", font=("Poppins", 25, "bold"))
@@ -196,7 +207,7 @@ def jogar(janela1, janela2, start_time): #Captura da Tela do Aluno
     for i in range(3):
         
         emo_p = capture(janela2, start_time, i) 
-
+        vid1 = cv2.VideoCapture(2)
         janela2['fase'].update(value=(i+1)) 
 
         current_time = 0
@@ -277,6 +288,7 @@ def jogar(janela1, janela2, start_time): #Captura da Tela do Aluno
             except Exception as err:
                 print(err)
                 continue
+        vid1.release()
 
     janela2.close()
 
