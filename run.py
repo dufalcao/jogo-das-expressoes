@@ -35,12 +35,12 @@ def janela_final():
 def janela_jogo():
     sg.theme('Reddit')
 
-    col1 = [[sg.Text("PROFESSOR",size=(12,1), font=('Poppins', 20, 'bold'), justification="center", key='professor')],
-            [sg.Image(filename='images/user.png', background_color='white', size=(412, 412),  key='camProfessor')],
+    col1 = [[sg.Text("PROFESSOR",size=(12,1), font=('Poppins', 30, 'bold'), justification="center", key='professor')],
+            [sg.Image(filename='images/teacher.png', background_color='white', size=(412, 412),  key='camProfessor')],
             [sg.Text("",size=(18,1), font=('Poppins', 15), justification="center", key='OutProfessor')]
         ]
 
-    col2 = [[sg.Text("ALUNO", size=(12,1),font=('Poppins', 20, "bold"), justification="center", key='aluno')],
+    col2 = [[sg.Text("ALUNO", size=(12,1),font=('Poppins', 30, "bold"), justification="center", key='aluno')],
             [sg.Image(filename='images/user.png', background_color='white', size=(412, 412), key='camAluno')],
             [sg.Text("",size=(18,1), font=('Poppins', 15), justification="center", key='OutAluno')]
         ]
@@ -54,8 +54,8 @@ def janela_jogo():
 
         [sg.Column(col1,element_justification='c'), sg.VSeparator('white'), sg.Column(col2,element_justification='c')],
         [sg.T('')],
-        [sg.Text('', size=(28, 1), background_color="#00b2ef", text_color= 'white', font=('Poppins', 25), justification="center", key='expressao')],
-        [sg.Text("Expressões Corretas:", size=(20, 1), justification="center", font=("Poppins", 15)), sg.Text('0', font=("Poppins", 15), key='scorenum')],
+        [sg.Text('', size=(28, 1), text_color= '#00b2ef', font=('Poppins', 25), justification="center", key='expressao')],
+        [sg.Text("Expressões Corretas:", size=(20, 1), justification="center", font=("Poppins", 20, 'bold')), sg.Text('0', font=("Poppins", 20, 'bold'), key='scorenum')],
     ]
     return sg.Window("Jogo de Expressões", layout=layout ,element_justification='c', size=(
         1370, 800), location=(50, 30))
@@ -79,7 +79,6 @@ def janela_final_saida():
     return sg.Window("Jogo de Expressões",layout=layout, size=(400, 200), element_justification='center', location=(550, 250))
 
 def translateEmo(emolabel):
-    # emocao = ""
 
     if(emolabel == 'happy'):
         emocao = "Feliz"
@@ -111,20 +110,17 @@ def capture(janela2, start_time, i, again=0): #Captura da Tela do Professor
 
     while current_time <= 500:
         event, values = janela2.read(timeout=10)
+        janela2['OutProfessor'].update(" ")
+        janela2['OutAluno'].update("Aguarde", text_color="#D4181A", font=("Poppins", 25, "bold"))
 
         janela2['fase'].update(value=(i+1))
         janela2['contador'].update('{:02d}'.format((current_time //100) % 60))
-        janela2['expressao'].Widget.config(padx=3, pady=3, background= '#c71017')
-        janela2['expressao'].update("Atenção Professor, é a sua vez!")
-
+        
+        janela2['expressao'].update("Atenção Professor, é a sua vez!", font=('Poppins', 28, "bold"))
+        janela2['camProfessor'].update(filename="images/teacher.png")
         current_time = time_as_int() - start_time
     
-    janela2['OutAluno'].update(" ", text_color="black", font=('Poppins', 20, "bold"))
-
-    # janela2['OutProfessor'].update(" ", text_color="black", font=('Poppins', 20, "bold"))
-
-    janela2['expressao'].Widget.config(padx=3, pady=3, background= '#00b2ef')
-    janela2['expressao'].update("Faça uma Expressão!")
+    janela2['expressao'].update("Professor, faça uma Expressão!")
     janela2['professor'].update(text_color="#00b2ef", font=('Poppins', 20, "bold"))
     janela2['aluno'].update(text_color="black", font=('Poppins', 20, "bold"))
 
@@ -146,7 +142,7 @@ def capture(janela2, start_time, i, again=0): #Captura da Tela do Professor
 
             frame_cap = np.fliplr(frame_cap).astype(np.uint8)
             results = rmn.detect_emotion_for_single_frame(frame_cap)
-
+            
             for result in results:
                 emolabel = result['emo_label']
                 emoproba = result['emo_proba']
@@ -162,7 +158,6 @@ def capture(janela2, start_time, i, again=0): #Captura da Tela do Professor
                     frame_dic[emolabel] = frame_cap
 
             imgbytes = cv2.imencode('.png', frame_cap)[1].tobytes()
-            janela2['camProfessor'].Widget.config(padx=30, pady=30, background= '#00b2ef')
             janela2['camProfessor'].update(data=imgbytes)
 
         except Exception as err:
@@ -179,7 +174,8 @@ def capture(janela2, start_time, i, again=0): #Captura da Tela do Professor
         start_time = time_as_int()
         while current_time <= 500:
             event, values = janela2.read(timeout=10)
-            janela2['expressao'].update("Tente Novamente")
+            janela2['camProfessor'].update(filename="images/teacher.png")
+            janela2['OutProfessor'].update("Tente Novamente", text_color="#D4181A", font=("Poppins", 25, "bold"))
             current_time = time_as_int() - start_time
         
         start_time = time_as_int()
@@ -195,7 +191,6 @@ def capture(janela2, start_time, i, again=0): #Captura da Tela do Professor
             img_frame = cv2.imencode('.png', frame_dic[key])[1].tobytes()
             janela2['camProfessor'].update(data=img_frame)
 
-    # janela2['camProfessor'].Widget.config(padx=30, pady=30, background ='black')
     vid.release()
     return emotion
 
@@ -216,15 +211,12 @@ def jogar(janela1, janela2, start_time): #Captura da Tela do Aluno
         while current_time <= 500:
             event, values = janela2.read(timeout=20)
             janela2['contador'].update('{:02d}'.format((current_time //100) % 60))
-            janela2['expressao'].Widget.config(padx=5, pady=5, background= '#c71017')
-            janela2['expressao'].update("Atenção Aluno, é a sua vez!")
+            janela2['OutAluno'].update(" ", text_color="black", font=('Poppins', 20, "bold"))
+            janela2['expressao'].update("Atenção Aluno, agora é a sua vez!")
             current_time = time_as_int() - start_time
 
-        janela2['expressao'].Widget.config(padx=5, pady=5, background= '#00b2ef')
         janela2['expressao'].update("Faça uma Expressão!")
-        janela2['aluno'].update(text_color='#00b2ef', font=('Poppins', 20, "bold"))
         janela2['professor'].update(text_color="black", font=('Poppins', 20, "bold"))
-        # janela2['OutAluno'].update(" ")
 
         current_time = 0
         start_time = time_as_int()
@@ -249,18 +241,15 @@ def jogar(janela1, janela2, start_time): #Captura da Tela do Aluno
                 for result in results:
                     emolabel = result['emo_label']
                     emoproba = result['emo_proba']
-                
-                # janela2['OutProfessor'].update(" ", text_color="black", font=('Poppins', 20, "bold"))
 
                 if (emoproba > 0.7 and emolabel == emo_p and current_time < 1000):
-                    # janela2['OutAluno'].update(emolabel)
                     current_time = 0
-                    while current_time <= 500 :
+                    while current_time <= 700 :
                         event, values = janela2.read(timeout=20)
                         current_time = time_as_int() - start_time
                     
                         janela2['OutProfessor'].update("Expressão Correta", text_color="white", font=("Poppins", 25, "bold"))
-                        janela2['OutAluno'].update("Expressão Correta", text_color="green", font=("Poppins", 25, "bold"))
+                        janela2['OutAluno'].update("Expressão Correta", text_color="#19D342", font=("Poppins", 25, "bold"))
                     
                     score += 1
                     janela2['scorenum'].update(value=score)
@@ -269,27 +258,25 @@ def jogar(janela1, janela2, start_time): #Captura da Tela do Aluno
 
                 elif (current_time > 1000):
                     current_time = 0
-                    while current_time <= 500 :
+                    while current_time <= 700 :
                         event, values = janela2.read(timeout=20)
                         current_time = time_as_int() - start_time
 
                         janela2['OutProfessor'].update("Tempo Esgotado", text_color="white", font=("Poppins", 25, "bold"))
-                        janela2['OutAluno'].update("Tempo Esgotado", text_color="red", font=("Poppins", 25, "bold"))
+                        janela2['OutAluno'].update("Tempo Esgotado", text_color="#D4181A", font=("Poppins", 25, "bold"))
                     
                     start_time = time_as_int()
                     break
 
                 imgbytes = cv2.imencode('.png', frame)[1].tobytes()
                 janela2['camAluno'].update(data=imgbytes)
-                janela2['camAluno'].Widget.config(padx=30, pady=30, background = '#00b2ef')
                 janela2['contador'].update('{:02d}.{:02d}'.format((current_time //100) % 60, current_time % 100))
 
-                # vid1.release()
             except Exception as err:
                 print(err)
                 continue
         vid1.release()
-
+        janela2['camAluno'].update(filename="images/user.png")
     janela2.close()
 
     return score
