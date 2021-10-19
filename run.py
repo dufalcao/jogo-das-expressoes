@@ -60,6 +60,27 @@ def janela_jogo():
     return sg.Window("Jogo de Expressões", layout=layout ,element_justification='c', size=(
         1370, 800), location=(50, 30))
 
+def janela_professor():
+    sg.theme('Reddit')
+
+    layout = [
+        [sg.T('')],
+        [sg.Text("Fase:", size=(4, 1), justification="center", font=("Poppins", 25)), sg.Text('',size=(8, 1),font=("Poppins", 25, 'bold'),text_color='#c71017', key='fase'), 
+        sg.T('                                                                                                                                                                                         '), 
+        sg.Text("Tempo:", size=(7, 1), justification="center", font=("Poppins", 25)), sg.Text('', size=(12, 1),text_color='#c71017', font=('Poppins', 25,'bold'), key='contador')],
+        
+        [
+            [sg.Text("PROFESSOR",size=(12,1), font=('Poppins', 30, 'bold'), justification="center", key='professor')],
+            [sg.Image(filename='images/teacher.png', background_color='white', size=(412, 412),  key='camProfessor')],
+            [sg.Text("",size=(18,1), font=('Poppins', 15), justification="center", key='OutProfessor')]
+        ],
+        
+        [sg.T('')],
+        [sg.Text('', size=(28, 1), text_color= '#00b2ef', font=('Poppins', 25), justification="center", key='expressao')],
+    ]
+    return sg.Window("Jogo de Expressões", layout=layout ,element_justification='c', size=(
+        1370, 800), location=(50, 30))
+
 def janela_instruction():
     sg.theme('Reddit')
     
@@ -107,6 +128,7 @@ def capture(janela2, start_time, i, again=0): #Captura da Tela do Professor
     img_frame = ""
     emotions = []
     emocao = ""
+    start_time = time_as_int()
 
     while current_time <= 500:
         event, values = janela2.read(timeout=10)
@@ -121,7 +143,7 @@ def capture(janela2, start_time, i, again=0): #Captura da Tela do Professor
         current_time = time_as_int() - start_time
     
     janela2['expressao'].update("Professor, faça uma Expressão!")
-    janela2['professor'].update(text_color="#00b2ef", font=('Poppins', 20, "bold"))
+    janela2['professor'].update(text_color="black", font=('Poppins', 20, "bold"))
     janela2['aluno'].update(text_color="black", font=('Poppins', 20, "bold"))
 
     current_time = 0
@@ -137,25 +159,26 @@ def capture(janela2, start_time, i, again=0): #Captura da Tela do Professor
         
         try:    
             emoproba = 0
+            emolabelProf = ""
 
             current_time = time_as_int() - start_time
 
             frame_cap = np.fliplr(frame_cap).astype(np.uint8)
-            results = rmn.detect_emotion_for_single_frame(frame_cap)
+            resultsProf = rmn.detect_emotion_for_single_frame(frame_cap)
             
-            for result in results:
-                emolabel = result['emo_label']
-                emoproba = result['emo_proba']
+            for resultProf in resultsProf:
+                emolabelProf = resultProf['emo_label']
+                emoproba = resultProf['emo_proba']
                 
-                emocao = translateEmo(emolabel)
+                emocao = translateEmo(emolabelProf)
 
                 janela2['OutProfessor'].update(emocao,  text_color="black", font=("Poppins", 25, "bold"))
 
-            if(emoproba > 0.7 and emolabel != "neutral"):
-                emotions.append(emolabel)
+            if(emoproba > 0.7 and emolabelProf != "neutral"):
+                emotions.append(emolabelProf)
 
-                if(emolabel != key for key in frame_dic):   # se o emolabel for diferente de todas as keys, incrementa no frame_dic                
-                    frame_dic[emolabel] = frame_cap
+                if(emolabelProf != key for key in frame_dic):   # se o emolabel for diferente de todas as keys, incrementa no frame_dic                
+                    frame_dic[emolabelProf] = frame_cap
 
             imgbytes = cv2.imencode('.png', frame_cap)[1].tobytes()
             janela2['camProfessor'].update(data=imgbytes)
@@ -169,7 +192,7 @@ def capture(janela2, start_time, i, again=0): #Captura da Tela do Professor
             maior = emotions.count(e)
             emotion = e         # emolabel final         
             
-    if len(emotions) <= 0:
+    if len(emotions) <= 0 and emotion == "":
         current_time = 0
         start_time = time_as_int()
         while current_time <= 500:
@@ -197,10 +220,12 @@ def capture(janela2, start_time, i, again=0): #Captura da Tela do Professor
 def jogar(janela1, janela2, start_time): #Captura da Tela do Aluno
     janela1.close()
     score = 0
-    emo_p = ""
+    
    
     for i in range(3):
-        
+        emo_p = ""
+        results = []
+        result = {}
         emo_p = capture(janela2, start_time, i) 
         vid1 = cv2.VideoCapture(2)
         janela2['fase'].update(value=(i+1)) 
@@ -217,18 +242,20 @@ def jogar(janela1, janela2, start_time): #Captura da Tela do Aluno
 
         janela2['expressao'].update("Faça uma Expressão!")
         janela2['professor'].update(text_color="black", font=('Poppins', 20, "bold"))
-
         current_time = 0
-        start_time = time_as_int()
+        start_time = time_as_int()  
 
         while True: 
-                                                   # aluno
+                                     # aluno
             ret, frame = vid1.read()
             if frame is None or ret is not True:
                 continue
 
-            try:
+            try:   
+
                 emoproba = 0
+                emolabel = ""
+
                 event, values = janela2.read(timeout=20)
                 current_time = time_as_int() - start_time
 
@@ -236,29 +263,38 @@ def jogar(janela1, janela2, start_time): #Captura da Tela do Aluno
                     exit(0)
 
                 frame = np.fliplr(frame).astype(np.uint8)
-                results = rmn.detect_emotion_for_single_frame(frame)
+              
+                imgbytes = cv2.imencode('.png', frame)[1].tobytes()
+                janela2['camAluno'].update(data=imgbytes)
+                janela2['contador'].update('{:02d}.{:02d}'.format((current_time //100) % 60, current_time % 100))
+
+                if(current_time >= 200):
+                    results = rmn.detect_emotion_for_single_frame(frame)
 
                 for result in results:
                     emolabel = result['emo_label']
                     emoproba = result['emo_proba']
 
+
                 if (emoproba > 0.7 and emolabel == emo_p and current_time < 1000):
                     current_time = 0
-                    while current_time <= 700 :
+                    start_time = time_as_int()
+                    score += 1
+                    while current_time <= 500 :
                         event, values = janela2.read(timeout=20)
                         current_time = time_as_int() - start_time
                     
                         janela2['OutProfessor'].update("Expressão Correta", text_color="white", font=("Poppins", 25, "bold"))
                         janela2['OutAluno'].update("Expressão Correta", text_color="#19D342", font=("Poppins", 25, "bold"))
-                    
-                    score += 1
-                    janela2['scorenum'].update(value=score)
+                        janela2['scorenum'].update(value=score)
+
                     start_time = time_as_int()
                     break
 
                 elif (current_time > 1000):
                     current_time = 0
-                    while current_time <= 700 :
+                    start_time = time_as_int()
+                    while current_time <= 500 :
                         event, values = janela2.read(timeout=20)
                         current_time = time_as_int() - start_time
 
@@ -267,10 +303,6 @@ def jogar(janela1, janela2, start_time): #Captura da Tela do Aluno
                     
                     start_time = time_as_int()
                     break
-
-                imgbytes = cv2.imencode('.png', frame)[1].tobytes()
-                janela2['camAluno'].update(data=imgbytes)
-                janela2['contador'].update('{:02d}.{:02d}'.format((current_time //100) % 60, current_time % 100))
 
             except Exception as err:
                 print(err)
