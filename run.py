@@ -14,7 +14,10 @@ def time_as_int():
 def janela_inicio(): # JANELA 1 
     sg.theme('Reddit')
     layout = [
-        [sg.Image(filename='images/pti.png', size=(300, 300))],
+        [sg.T(" ")],
+        [sg.Text("DualTEA",size=(10,1), justification="center",font=('Poppins', 40, 'bold'), key='')],
+        [sg.Image(filename='images/pti.png', size=(250, 250))],
+        [sg.T(" ")],
         [sg.Button("Início", button_color= "#00b2ef", font=("Poppins", 25), size=(10, 1))],
         [sg.Button("Instruções", button_color= "#00ad4e", font=("Poppins", 25), size=(10, 1))],
         [sg.Button("Sair", size=(10, 1), button_color= "#d4181a", font=("Poppins", 25))]
@@ -50,7 +53,7 @@ def janela_jogo(): # JANELA 2
         [sg.Text("Fase:", size=(4, 1), justification="center", font=("Poppins", 25)), sg.Text('',size=(8, 1),font=("Poppins", 25, 'bold'),text_color='#c71017', key='fase'), 
         sg.T('                                                                                                                                                                                         '), 
         sg.Text("Tempo:", size=(7, 1), justification="center", font=("Poppins", 25)), sg.Text('', size=(12, 1),text_color='#c71017', font=('Poppins', 25,'bold'), key='contador')],
-        
+
 
         [sg.Column(col1,element_justification='c'), sg.VSeparator('white'), sg.Column(col2,element_justification='c')],
         [sg.T('')],
@@ -85,7 +88,7 @@ def janela_instruction(): # JANELA 3
     sg.theme('Reddit')
     
     layout = [
-        [sg.Image('images/rules.png',size=(700,300))],
+        [sg.Image('images/rules.png',size=(700,370))],
         [sg.Button("Voltar", size=(10,1), button_color= "#00b2ef",font=("Poppins", 25))]
     ]
     return sg.Window("Jogo de Expressões",layout=layout, size=(800, 600), element_justification='center', location=(350, 150))
@@ -100,6 +103,8 @@ def janela_final_saida(): # JANELA 5
     return sg.Window("Jogo de Expressões",layout=layout, size=(400, 200), element_justification='center', location=(550, 250))
 
 def translateEmo(emolabel): # traduz o emolabel para o 'OutProfessor' da JANELA6 e JANELA2 
+    emocao = ""
+
     if(emolabel == 'happy'):
         emocao = "Feliz"
     elif(emolabel == 'sad'):
@@ -128,7 +133,7 @@ def nextTurn(user, janela2, janela6, i): # faz a contagem para o usuário (profe
 
         while current_time <= 500:                                                                                  
             event, values = janela2.read(timeout=10)                                                        # feito
-            janela2['contador'].update('{:02d}'.format((current_time //100) % 60))                          # feito
+            janela2['contador'].update('{:02d}'.format((current_time //100) % 60))                       # feito
             janela2['OutAluno'].update(" ", text_color="black", font=('Poppins', 20, "bold"))               # não feito
             janela2['expressao'].update("Atenção Aluno, agora é a sua vez!", font = ('Poppins', 28,"bold")) # feito
 
@@ -143,6 +148,7 @@ def nextTurn(user, janela2, janela6, i): # faz a contagem para o usuário (profe
             event2, values2 = janela2.read(timeout=10)                                                      # feito
             event, values = janela6.read(timeout=10)                                                        # feito
 
+            janela2['contador'].update("")
             janela2['professor'].update(text_color="black", font=('Poppins', 30, "bold"))                   # feito
             janela2['aluno'].update(text_color="black", font=('Poppins', 30, "bold"))                       # especifico, não feito
 
@@ -153,7 +159,7 @@ def nextTurn(user, janela2, janela6, i): # faz a contagem para o usuário (profe
 
             janela6['OutProfessor'].update(" ")                                                             # [???] específico, não feito
             janela6['fase'].update(value=(i+1))                                                             # feito        
-            janela6['contador'].update('{:02d}'.format((current_time //100) % 60))                          # feito
+            janela6['contador'].update('{:02d}'.format((current_time //100)%60))                         # feito
             janela6['expressao'].update("Atenção Professor, é a sua vez!", font=('Poppins', 28, "bold"))    # feito
             janela6['camProfessor'].update(filename="images/teacher.png")                                   # específico para a janela6, não feito.
 
@@ -162,7 +168,7 @@ def nextTurn(user, janela2, janela6, i): # faz a contagem para o usuário (profe
         janela6['expressao'].update("Professor, faça uma Expressão!")                                       # feito
         janela6['professor'].update(text_color="black", font=('Poppins', 20, "bold"))                       # feito
 
-def profRec(janela2, janela6, i): # captura da tela do professor 
+def profRec(janela2, janela6, i, neutral=0): # captura da tela do professor 
     vid = cv2.VideoCapture(-1)
     maior = 0
     frame_dic = {}
@@ -177,7 +183,7 @@ def profRec(janela2, janela6, i): # captura da tela do professor
     current_time = 0
     start_time = time_as_int()
 
-    while current_time < 500: # professor
+    while current_time <= 500: # professor
         event2, values2 = janela2.read(timeout=1)
         event, values = janela6.read(timeout=1)
         janela6['contador'].update('{:02d}.{:02d}'.format((current_time //100) % 60, current_time % 100))
@@ -226,8 +232,12 @@ def profRec(janela2, janela6, i): # captura da tela do professor
         if(emotions.count(e) > maior):
             maior = emotions.count(e)
             emotion = e         # emolabel final         
-            
+         
     if len(emotions) <= 0 and emotion == "":
+        neutral+=1
+
+        if(neutral >= 5):
+            return -1
 
         current_time = 0
         start_time = time_as_int()
@@ -240,7 +250,7 @@ def profRec(janela2, janela6, i): # captura da tela do professor
         
         start_time = time_as_int()
         vid.release()
-        emotion = profRec(janela2, janela6, i) 
+        emotion = profRec(janela2, janela6, i, neutral) 
 
     emocao = translateEmo(emotion)
 
@@ -264,7 +274,14 @@ def alunoRec(janela1, janela2, janela6): # captura da tela do aluno
         emo_p = ""
         results = []
         result = {}
+    
         emo_p = profRec(janela2, janela6, i) 
+
+        if(emo_p == -1):
+            janela2.close()
+            janela6.close()
+            return -1
+
         vid1 = cv2.VideoCapture(2)
         janela2['fase'].update(value=(i+1)) 
 
@@ -382,25 +399,30 @@ while aux == False:
         janela6 = janela_professor()
 
         score = alunoRec(janela1, janela2, janela6)
-        janela4 = janela_final()
+
+        if score == -1:
+            continue
+        else:
+            # if(score != -1): 
+            janela4 = janela_final()
         
-        while True:
-            event, values = janela4.read(timeout=10)
-            
-            if score == 0:
-                janela4['mensagem'].update("Mais sorte na próxima!")
-            elif score <= 2:
-                janela4['mensagem'].update("Tente novamente!")
-            elif score >= 2:
-                janela4['mensagem'].update("Parabéns Aluno!")
-            
-            janela4['scorefinal'].update(score)
+            while True:
+                event, values = janela4.read(timeout=10)
+                
+                if score == 0:
+                    janela4['mensagem'].update("Mais sorte na próxima!")
+                elif score <= 2:
+                    janela4['mensagem'].update("Tente novamente!")
+                elif score >= 2:
+                    janela4['mensagem'].update("Parabéns Aluno!")
+                
+                janela4['scorefinal'].update(score)
 
-            if event  == sg.WIN_CLOSED:
-                exit(0)
+                if event  == sg.WIN_CLOSED:
+                    exit(0)
 
-            if event == "Voltar":
-                janela4.close()
-                break
-
+                if event == "Voltar":
+                    janela4.close()
+                    break
+              
 cv2.destroyAllWindows()
