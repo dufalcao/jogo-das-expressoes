@@ -258,7 +258,7 @@ def nextTurn(user, janela2, janela6, i, n, nome="aluno"):
         janela6['professor'].update(text_color="black", font=('Poppins', 20, "bold"))                      
 
 def profRec(janela2, janela6, i, n, nome, neutral=0):  # Captura da tela do professor
-    vid = cv2.VideoCapture(2)
+    vid = cv2.VideoCapture(0)
     maior = 0
     frame_dic = {}
     emotion = ""
@@ -384,7 +384,7 @@ def alunoRec(janela1, janela2, janela6, n, nome):  # Captura das expressôes do 
             janela6.close()
             return -1
 
-        vid1 = cv2.VideoCapture(-1)
+        vid1 = cv2.VideoCapture(0)
 
         # "Atenção Aluno, é a sua vez!"
         nextTurn("aluno", janela2, janela6, i, n, nome)
