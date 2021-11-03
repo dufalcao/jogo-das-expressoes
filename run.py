@@ -1,9 +1,8 @@
-# from tkinter import font
-from rmn import RMN
 import cv2
-import numpy as np
-import PySimpleGUI as sg
 import time
+import numpy as np
+from rmn import RMN
+import PySimpleGUI as sg
 
 rmn = RMN()
 current_time = 0 #Tempo
