@@ -1,8 +1,8 @@
-import cv2
-import time
-import numpy as np
 from rmn import RMN
+import cv2
+import numpy as np
 import PySimpleGUI as sg
+import time
 
 rmn = RMN()
 current_time = 0 #Tempo
@@ -126,30 +126,6 @@ def janela_jogo():  # Janela do jogo na perspectiva do Aluno
     return sg.Window("Jogo de Expressões", layout=layout, element_justification='c', size=(
         1370, 800), location=(300, 50))
 
-def janela_professor():  # Janela do jogo na pespectiva do Professor
-    sg.theme('Reddit')
-
-    layout = [
-        [sg.T('')],
-        [sg.Text("Fase: ", size=(5, 1), justification="center", font=("Poppins", 25)), sg.Text('', size=(6, 1), font=("Poppins", 25, 'bold'), text_color='#c71017', key='fase'),
-         sg.T('                                                                                                                                                                                                  '),
-         sg.Text("Tempo:", size=(7, 1), justification="center", font=("Poppins", 25)), sg.Text('', size=(12, 1), text_color='#c71017', font=('Poppins', 25, 'bold'), key='contador')],
-
-        [
-            [sg.Text("PROFESSOR", size=(12, 1), font=('Poppins', 30,
-                     'bold'), justification="center", key='professor')],
-            [sg.Image(filename='images/teacher.png', background_color='white',
-                      size=(412, 412),  key='camProfessor')],
-            [sg.Text("", size=(18, 1), font=('Poppins', 15),
-                     justification="center", key='OutProfessor')]
-        ],
-
-        [sg.T('')],
-        [sg.Text('', size=(28, 1), text_color='#00b2ef', font=(
-            'Poppins', 25), justification="center", key='expressao')],
-    ]
-    return sg.Window("Jogo de Expressões", layout=layout, element_justification='c', size=(
-        1370, 800), location=(2200, 50))
 
 def janela_instruction():  # Janela informanto o conjunto de instruções do jogo
     sg.theme('Reddit')
@@ -195,16 +171,14 @@ def translateEmo(emolabel):  # Traduz o emolabel para o 'OutProfessor' da JANELA
     return emocao
 
 # Faz a contagem para o usuário (professor ou aluno) ser capturado
-def nextTurn(user, janela2, janela6, i, n, nome="aluno"):
+def nextTurn(user, janela2, i, n, nome="aluno"):
     current_time = 0
     start_time = time_as_int()
 
-    if(user == "aluno"):
-        janela6['camProfessor'].update(
-            filename="images/teacher.png") #Atualiza a imagem na aba Professor - (Janela Professor)                                   
+    if(user == "aluno"):                                   
         
-        janela6['expressao'].update(" ") # Limpa o campo de 'Faca uma expressão'
-        janela6['professor'].update(text_color="black", font=(
+        janela2['expressao'].update(" ") # Limpa o campo de 'Faca uma expressão'
+        janela2['professor'].update(text_color="black", font=(
             'Poppins', 30, "bold"))                       
 
         while current_time <= 500: # Timer de contagem (5 segundos)
@@ -219,14 +193,13 @@ def nextTurn(user, janela2, janela6, i, n, nome="aluno"):
 
             current_time = time_as_int() - start_time
 
-        janela2['expressao'].update("Faça uma Expressão!", font=('Poppins', 28, "bold"))                    
+        janela2['expressao'].update("Imite a Expressão!", font=('Poppins', 28, "bold"))                    
         janela2['professor'].update(text_color="black", font=('Poppins', 20, "bold"))                       
 
     elif(user == "professor"):
         while current_time <= 500: # Timer de contagem (5 segundos)                                                                    # feito
             
             event2, values2 = janela2.read(timeout=1)
-            event, values = janela6.read(timeout=1)
 
             janela2['aluno'].update(nome)
             janela2['contador'].update("")
@@ -241,22 +214,22 @@ def nextTurn(user, janela2, janela6, i, n, nome="aluno"):
 
             fase_str = str(i+1) + " / " + str(n)
             janela2['fase'].update(str(fase_str))
-            janela6['fase'].update(str(fase_str))
+            
           
-            janela6['OutProfessor'].update(" ")
-            janela6['contador'].update('{:02d}'.format(
+            janela2['OutProfessor'].update(" ")
+            janela2['contador'].update('{:02d}'.format(
                 (current_time // 100) % 60))                         
-            janela6['expressao'].update(
+            janela2['expressao'].update(
                 "Atenção Professor, é a sua vez!", font=('Poppins', 28, "bold"))  
-            janela6['camProfessor'].update(filename="images/teacher.png")
+            janela2['camProfessor'].update(filename="images/teacher.png")
 
             current_time = time_as_int() - start_time
         
-        janela6['expressao'].update("Professor, faça uma Expressão!")
-        janela6['professor'].update(text_color="black", font=('Poppins', 20, "bold"))                      
+        janela2['expressao'].update("Professor, faça uma Expressão!")
+        janela2['professor'].update(text_color="black", font=('Poppins', 20, "bold"))                      
 
-def profRec(janela2, janela6, i, n, nome, neutral=0):  # Captura da tela do professor
-    vid = cv2.VideoCapture(0)
+def profRec(janela2, i, n, nome, neutral=0):  # Captura da tela do professor
+    vid = cv2.VideoCapture(-1)
     maior = 0
     frame_dic = {}
     emotion = ""
@@ -266,15 +239,15 @@ def profRec(janela2, janela6, i, n, nome, neutral=0):  # Captura da tela do prof
     emocao = ""
 
     # "Atenção Professor, é a sua vez!",
-    nextTurn("professor", janela2, janela6, i, n, nome)
+    nextTurn("professor", janela2, i, n, nome)
 
     current_time = 0
     start_time = time_as_int()
 
     while current_time <= 500:  # Timer 5 segundos de Captura das expressões do Professor
         event2, values2 = janela2.read(timeout=1)
-        event, values = janela6.read(timeout=1)
-        janela6['contador'].update('{:02d}.{:02d}'.format(
+
+        janela2['contador'].update('{:02d}.{:02d}'.format(
             (current_time // 100) % 60, current_time % 100))
 
         ret, frame_cap = vid.read()
@@ -283,10 +256,9 @@ def profRec(janela2, janela6, i, n, nome, neutral=0):  # Captura da tela do prof
             continue
 
         try:
-            if event == sg.WIN_CLOSED or event2 == sg.WIN_CLOSED:
+            if event2 == sg.WIN_CLOSED:
                 vid.release()
                 janela2.close()
-                janela6.close()
                 exit(0)
 
             emoproba = 0
@@ -305,7 +277,7 @@ def profRec(janela2, janela6, i, n, nome, neutral=0):  # Captura da tela do prof
 
                 emocao = translateEmo(emolabelProf) # Traduz o emolabel
 
-                janela6['OutProfessor'].update(
+                janela2['OutProfessor'].update(
                     emocao,  text_color="black", font=("Poppins", 25, "bold"))
 
             # Capta as expressões diferentes de neutro e com 70% do emoproba
@@ -317,7 +289,7 @@ def profRec(janela2, janela6, i, n, nome, neutral=0):  # Captura da tela do prof
                     frame_dic[emolabelProf] = frame_cap
 
             imgbytes = cv2.imencode('.png', frame_cap)[1].tobytes()
-            janela6['camProfessor'].update(data=imgbytes)
+            janela2['camProfessor'].update(data=imgbytes)
 
         except Exception as err:
             print(err)
@@ -339,21 +311,19 @@ def profRec(janela2, janela6, i, n, nome, neutral=0):  # Captura da tela do prof
         start_time = time_as_int()
 
         while current_time <= 500: # Timer de delay e update
-            event, values = janela6.read(timeout=1)
-            janela6['camProfessor'].update(filename="images/teacher.png")
-            janela6['OutProfessor'].update(
+            event, values = janela2.read(timeout=1)
+            janela2['camProfessor'].update(filename="images/teacher.png")
+            janela2['OutProfessor'].update(
                 "Tente Novamente", text_color="#D4181A", font=("Poppins", 25, "bold"))
             current_time = time_as_int() - start_time
 
         start_time = time_as_int()
         vid.release() # Interrompe a captura do RMN
-        emotion = profRec(janela2, janela6, i, n, nome, neutral)
+        emotion = profRec(janela2, i, n, nome, neutral)
 
     emocao = translateEmo(emotion)
 
     janela2['OutProfessor'].update(
-        emocao, text_color="black", font=("Poppins", 25, "bold"))
-    janela6['OutProfessor'].update(
         emocao, text_color="black", font=("Poppins", 25, "bold"))
 
     # Função que capta o frame de acordo com expressão de maior frequência
@@ -361,12 +331,11 @@ def profRec(janela2, janela6, i, n, nome, neutral=0):  # Captura da tela do prof
         if key == emotion:
             img_frame = cv2.imencode('.png', frame_dic[key])[1].tobytes()
             janela2['camProfessor'].update(data=img_frame)
-            janela6['camProfessor'].update(data=img_frame)
 
     vid.release()
     return emotion
 
-def alunoRec(janela1, janela2, janela6, n, nome):  # Captura das expressôes do Aluno
+def alunoRec(janela1, janela2, n, nome):  # Captura das expressôes do Aluno
     janela1.close()
     score = 0
 
@@ -374,18 +343,17 @@ def alunoRec(janela1, janela2, janela6, n, nome):  # Captura das expressôes do 
         results = []
         result = {}
 
-        emo_p = profRec(janela2, janela6, i, n, nome) # Chama a captura do Professor 
+        emo_p = profRec(janela2, i, n, nome) # Chama a captura do Professor 
 
         # Caso só tenha sido gerado neutro ele retorna -1 para retornar ao menu
         if(emo_p == -1):
             janela2.close()
-            janela6.close()
             return -1
 
-        vid1 = cv2.VideoCapture(0)
+        vid1 = cv2.VideoCapture(-1)
 
         # "Atenção Aluno, é a sua vez!"
-        nextTurn("aluno", janela2, janela6, i, n, nome)
+        nextTurn("aluno", janela2, i, n, nome)
 
         current_time = 0
         start_time = time_as_int()
@@ -397,14 +365,12 @@ def alunoRec(janela1, janela2, janela6, n, nome):  # Captura das expressôes do 
                 continue
 
             event, values = janela2.read(timeout=1)
-            event6, values6 = janela6.read(timeout=1)
-
+           
             janela2['aluno'].update(
                 text_color="black", font=('Poppins', 20, "bold"))
 
-            if event == sg.WIN_CLOSED or event6 == sg.WIN_CLOSED:
+            if event == sg.WIN_CLOSED:
                 vid1.release()
-                janela6.close()
                 janela2.close()
                 exit(0)
 
@@ -472,7 +438,6 @@ def alunoRec(janela1, janela2, janela6, n, nome):  # Captura das expressôes do 
         janela2['camAluno'].update(filename="images/user.png")
         janela2['camProfessor'].update(filename="images/teacher.png")
     janela2.close()
-    janela6.close()
     return score
 
 ############################################# MENU #################################################33
@@ -524,7 +489,6 @@ if event == "Sim":
             janela1.close()
 
             janela2 = janela_jogo()
-            janela6 = janela_professor()
             janela7 = janela_definicao()
             janela8 = janela_carregamento()
 
@@ -542,7 +506,7 @@ if event == "Sim":
                             janela7.close()
                             
                             # Chama o jogo 
-                            score = alunoRec(janela1, janela2, janela6, n, nome)
+                            score = alunoRec(janela1, janela2, n, nome)
                             
                             # Retorna pro Menu
                             if score == -1:
