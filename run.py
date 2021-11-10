@@ -1,8 +1,10 @@
-from rmn import RMN
 import cv2
-import numpy as np
-import PySimpleGUI as sg
 import time
+import sys
+import numpy as np
+import button
+from rmn import RMN
+import PySimpleGUI as sg
 
 rmn = RMN()
 current_time = 0 #Tempo
@@ -15,93 +17,64 @@ def time_as_int(): #Funcao do tempo do Jogo
 
 ########################################## LAYOUTS INTERFACE #################################################333
 
-def janela_termos(): #Janela de Apresentação dos termos do jogo
-    sg.theme('Reddit')
-    layout = [
-        [sg.T(" ")],
-        [sg.Text("Trainne e-PTI", size=(15, 1), justification="center",
-                 font=('Poppins', 40, 'bold'), key='')],
-        [sg.Image(filename='images/pti.png', size=(250, 250))],
-        [sg.T(" ")],
-        [sg.Text("Para o uso do programa será necessário a coleta de alguns dados.", font=(
-            'Poppins', 15), justification="center")],
-        [sg.Text("Após o término do jogo esses dados serão descartados.", font=(
-            'Poppins', 15), justification="center")],
-        [sg.T(" ")],
-        [sg.Text("Você permite o uso desses dados?", font=(
-            'Poppins', 15), justification="center")],
-        [sg.Button("Sim", button_color="#00b2ef", font=("Poppins", 13, "bold")), sg.Button(
-            "Não", button_color="#d4181a", font=("Poppins", 13, "bold"))]
-    ]
-    return sg.Window("Jogo de Expressões", layout=layout, size=(800, 600), element_justification='center', location=(600, 150))
-
 def janela_inicio():  # Janela de Menu
     sg.theme('Reddit')
+    sg.theme_background_color('#505A9A')
+    sg.theme_text_element_background_color ('#505A9A')
+    
     layout = [
-        [sg.T(" ")],
-        [sg.Text("Trainne e-PTI", size=(15, 1), justification="center",
-                 font=('Poppins', 40, 'bold'), key='')],
-        [sg.Image(filename='images/pti.png', size=(250, 250))],
-        [sg.T(" ")],
-        [sg.Button("Jogar", button_color="#00b2ef", font=(
-            "Poppins", 25, "bold"), size=(10, 1))],
-        [sg.Button("Instruções", button_color="#00ad4e",
-                   font=("Poppins", 25, "bold"), size=(10, 1))],
-        [sg.Button("Sair", size=(10, 1), button_color="#d4181a",
-                   font=("Poppins", 25, "bold"))]
+            [sg.T(" ", )],
+            [sg.Text("LabdeIA-PTI", size=(15, 1), justification="center",
+                    font=('Poppins', 40, 'bold'), key='', text_color='white')],
+            [sg.Image(filename='images/team.png', size=(200, 200), background_color="#505A9A")],
+            [sg.T(" ")],
+            [sg.Button('', image_data=button.button_jogar, key = 'Jogar', button_color=(sg.theme_background_color(), sg.theme_background_color()), border_width=0)],
+            [sg.Button('', image_data=button.button_instrucoes, key = 'Instruções', button_color=(sg.theme_background_color(), sg.theme_background_color()), border_width=0)],
+            [sg.Button('', image_data=button.button_sair, key = 'Sair', button_color=(sg.theme_background_color(), sg.theme_background_color()), border_width=0)],
+                    
+            [sg.Image(filename='images/ptilogo.png', size=(80, 80), background_color="#505A9A")],
     ]
-    return sg.Window("Jogo de Expressões", layout=layout, size=(800, 600), element_justification='center', location=(600, 150))
+    return sg.Window("LabdeIA-PTI", layout=layout, size=(800, 600), element_justification='center', location=(600, 150))
 
 def janela_definicao(): # Janela de entrada de dados(nome, número de fases)
     sg.theme('Reddit')
 
     layout = [
-        [sg.Text("Digite o nome do Aluno:", font=(
+        [sg.Text("Digite o nome do Jogador(a):", font=(
             'Poppins', 15), justification="center")],
         [sg.Input(key="nome", size=(10, 1), font=('Poppins', 15))],
         [sg.Text("Digite o n° de Fases:", font=(
             'Poppins', 15), justification="center")],
         [sg.Input(key="nfases", size=(5, 1), font=('Poppins', 15))],
-        [sg.Button('Jogar', button_color="#00b2ef", font=('Poppins', 13, "bold")), sg.Button(
-            'Voltar', button_color="#00b2ef", font=('Poppins', 13, "bold"))]
+        [sg.Button('', image_data=button.button_jogar_small, key = 'Jogar', button_color=(sg.theme_background_color(), sg.theme_background_color()), border_width=0),
+        sg.Button('', image_data=button.button_voltar_small, key = 'Voltar', button_color=(sg.theme_background_color(), sg.theme_background_color()), border_width=0)],
+
     ]
-    return sg.Window("Jogo de Expressões", layout=layout, size=(400, 200), element_justification='center', location=(800, 300))
+    return sg.Window("LabdeIA-PTI", layout=layout, size=(400, 200), element_justification='center', location=(800, 300))
 
-def janela_carregamento(): #Janela de Animação de Carregamento {(Opcional)}
-    sg.theme('Reddit')
-
+def janela_final():
     layout = [
-        [sg.Text("Carregando")],
-        [sg.ProgressBar(3, orientation='h', size=(
-            100, 20), key='carregamento')]
+        [sg.Text("LabdeIA-PTI", size=(15, 1), justification="center",
+                font=('Poppins', 40, 'bold'), text_color='white')],
+        [sg.Image(filename='images/team.png', size=(100, 100), key='acertos')],
+        [sg.Text("",size=(32,1), justification="center",font=('Helvetica', 25, 'bold'), key='mensagem')],
+        [sg.Text("N° de Expressões Corretas: ", size=(23,1), font=("Helvetica", 18)), sg.Text('0', font=("Helvetica", 18), key='scorefinal')],
+        [sg.Button('', image_data=button.button_voltar, key = 'Voltar', button_color=(sg.theme_background_color(), sg.theme_background_color()), border_width=0)],
+        [sg.Image(filename='images/ptilogo.png', size=(80, 80))],
     ]
-    return sg.Window("Jogo de Expressões", layout=layout, size=(300, 200), element_justification='center', location=(550, 250))
-
-def janela_final():  #Janela Final de apresentação de dados
-    sg.theme('Reddit')
-    layout = [
-        [sg.Image(filename='images/pti.png', size=(300, 300))],
-        [sg.Text("", size=(32, 1), justification="center",
-                 font=('Poppins', 25, 'bold'), key='mensagem')],
-        [sg.Text("N° de Expressões Corretas: ", size=(23, 1), font=(
-            "Poppins", 18)), sg.Text('0', font=("Poppins", 18), key='scorefinal')],
-        [sg.Button("Voltar", button_color="#00b2ef", size=(
-            10, 1), font=("Poppins", 25, "bold"))],
-
-    ]
-    return sg.Window("Jogo de Expressões", layout=layout, size=(800, 600), element_justification='center', location=(600, 150))
+    return sg.Window("LabdeIA-PTI", layout=layout, size=(600, 400), element_justification='center', location=(700, 300))
 
 def janela_jogo():  # Janela do jogo na perspectiva do Aluno
     sg.theme('Reddit')
 
-    col1 = [[sg.Text("PROFESSOR", size=(12, 1), font=('Poppins', 30, 'bold'), justification="center", key='professor')],
+    col1 = [[sg.Text("Mestre", size=(12, 1), font=('Poppins', 30, 'bold'), justification="center", key='mestre')],
             [sg.Image(filename='images/teacher.png', background_color='white',
-                      size=(412, 412),  key='camProfessor')],
+                      size=(412, 412),  key='camMestre')],
             [sg.Text("", size=(18, 1), font=('Poppins', 15),
-                     justification="center", key='OutProfessor')]
+                     justification="center", key='OutMestre')]
             ]
 
-    col2 = [[sg.Text("ALUNO", size=(12, 1), font=('Poppins', 30, "bold"), justification="center", key='aluno')],
+    col2 = [[sg.Text("Jogador(a)", size=(12, 1), font=('Poppins', 30, "bold"), justification="center", key='aluno')],
             [sg.Image(filename='images/user.png', background_color='white',
                       size=(412, 412), key='camAluno')],
             [sg.Text("", size=(18, 1), font=('Poppins', 15),
@@ -115,27 +88,24 @@ def janela_jogo():  # Janela do jogo na perspectiva do Aluno
          sg.Text("Tempo:", size=(7, 1), justification="center", font=("Poppins", 25)), sg.Text('', size=(12, 1), text_color='#c71017', font=('Poppins', 25, 'bold'), key='contador')],
 
 
-        [sg.Column(col1, element_justification='c'), sg.VSeparator(
-            'white'), sg.Column(col2, element_justification='c')],
+        [sg.Column(col1, element_justification='c'), sg.Column(col2, element_justification='c')],
         [sg.T('')],
-        [sg.Text('', size=(32, 1), text_color='#00b2ef', font=(
+        [sg.Text('', size=(32, 1), text_color='#505A9A', font=(
             'Poppins', 25), justification="center", key='expressao')],
         [sg.Text("Expressões Corretas:", size=(20, 1), justification="center", font=(
             "Poppins", 20, 'bold')), sg.Text('0', font=("Poppins", 20, 'bold'), key='scorenum')],
     ]
-    return sg.Window("Jogo de Expressões", layout=layout, element_justification='c', size=(
+    return sg.Window("LabdeIA-PTI", layout=layout, element_justification='c', size=(
         1370, 800), location=(300, 50))
-
 
 def janela_instruction():  # Janela informanto o conjunto de instruções do jogo
     sg.theme('Reddit')
 
     layout = [
         [sg.Image('images/rules.png', size=(700, 370))],
-        [sg.Button("Voltar", size=(10, 1), button_color="#00b2ef",
-                   font=("Poppins", 25, "bold"))]
+        [sg.Button('', image_data=button.button_voltar, key = 'Voltar', button_color=(sg.theme_background_color(), sg.theme_background_color()), border_width=0)],
     ]
-    return sg.Window("Jogo de Expressões", layout=layout, size=(800, 600), element_justification='center', location=(600, 150))
+    return sg.Window("LabdeIA-PTI", layout=layout, size=(800, 600), element_justification='center', location=(600, 150))
 
 def janela_final_saida():  # Janela de confirmação de saida
     sg.theme('Reddit')
@@ -143,14 +113,14 @@ def janela_final_saida():  # Janela de confirmação de saida
     layout = [
         [sg.Text("Você tem certeza que deseja sair?", font=(
             'Poppins', 15), justification="center")],
-        [sg.Button("Sim", button_color="#00b2ef", font=("Poppins", 13, "bold")), sg.Button(
-            "Não", button_color="#00b2ef", font=("Poppins", 13, "bold"))]
+        [sg.Button('', image_data=button.button_sim, key = 'Sim', button_color=(sg.theme_background_color(), sg.theme_background_color()), border_width=0),
+        sg.Button('', image_data=button.button_nao, key = 'Não', button_color=(sg.theme_background_color(), sg.theme_background_color()), border_width=0)],
     ]
-    return sg.Window("Jogo de Expressões", layout=layout, size=(400, 200), element_justification='center', location=(800, 300))
+    return sg.Window("LabdeIA-PTI", layout=layout, size=(400, 200), element_justification='center', location=(800, 300))
 
 ############################################ FUNCIONALIDADES ###################################################3
 
-def translateEmo(emolabel):  # Traduz o emolabel para o 'OutProfessor' da JANELA6 e JANELA2
+def translateEmo(emolabel):  # Traduz o emolabel para o 'OutMestre' da JANELA2
     emocao = ""
 
     if(emolabel == 'happy'):
@@ -170,20 +140,25 @@ def translateEmo(emolabel):  # Traduz o emolabel para o 'OutProfessor' da JANELA
 
     return emocao
 
-# Faz a contagem para o usuário (professor ou aluno) ser capturado
+# Faz a contagem para o usuário (mestre ou aluno) ser capturado
 def nextTurn(user, janela2, i, n, nome="aluno"):
     current_time = 0
     start_time = time_as_int()
 
-    if(user == "aluno"):                                   
+    if(user == "aluno"):                                 
         
         janela2['expressao'].update(" ") # Limpa o campo de 'Faca uma expressão'
-        janela2['professor'].update(text_color="black", font=(
+        janela2['mestre'].update(text_color="black", font=(
             'Poppins', 30, "bold"))                       
 
         while current_time <= 500: # Timer de contagem (5 segundos)
           
             event, values = janela2.read(timeout=1)
+            
+            if event == sg.WIN_CLOSED:
+                janela2.close()
+                sys.exit()
+                
             janela2['contador'].update('{:02d}'.format( #Atualiza o tempo da Janela do Aluno
                 (current_time // 100) % 60))                       
             janela2['OutAluno'].update(" ", text_color="black", font=(
@@ -193,43 +168,48 @@ def nextTurn(user, janela2, i, n, nome="aluno"):
 
             current_time = time_as_int() - start_time
 
-        janela2['expressao'].update("Imite a Expressão!", font=('Poppins', 28, "bold"))                    
-        janela2['professor'].update(text_color="black", font=('Poppins', 20, "bold"))                       
+        janela2['expressao'].update("Faça uma Expressão!", font=('Poppins', 28, "bold"))                    
+        janela2['mestre'].update(text_color="black", font=('Poppins', 20, "bold"))                       
 
-    elif(user == "professor"):
+    elif(user == "mestre"):
         while current_time <= 500: # Timer de contagem (5 segundos)                                                                    # feito
             
             event2, values2 = janela2.read(timeout=1)
+            # event, values = janela6.read(timeout=1)
+            
+            if event2 == sg.WIN_CLOSED:
+                janela2.close()
+                sys.exit()
 
             janela2['aluno'].update(nome)
             janela2['contador'].update("")
-            janela2['professor'].update(text_color="black", font=('Poppins', 30, "bold"))                   
+            janela2['mestre'].update(text_color="black", font=('Poppins', 30, "bold"))                   
             janela2['aluno'].update(text_color="black", font=('Poppins', 30, "bold"))                       
 
             janela2['expressao'].update(" ")
         
-            janela2['OutProfessor'].update(" ")
+            janela2['OutMestre'].update(" ")
             janela2['OutAluno'].update("Aguarde", text_color="#D4181A", font=(
                 "Poppins", 25, "bold"))                                                               
 
             fase_str = str(i+1) + " / " + str(n)
             janela2['fase'].update(str(fase_str))
-            
+            janela2['fase'].update(str(fase_str))
           
-            janela2['OutProfessor'].update(" ")
+            janela2['OutMestre'].update(" ")
             janela2['contador'].update('{:02d}'.format(
                 (current_time // 100) % 60))                         
             janela2['expressao'].update(
-                "Atenção Professor, é a sua vez!", font=('Poppins', 28, "bold"))  
-            janela2['camProfessor'].update(filename="images/teacher.png")
+                "Atenção Mestre, é a sua vez!", font=('Poppins', 28, "bold"))  
+            janela2['camMestre'].update(filename="images/teacher.png")
 
             current_time = time_as_int() - start_time
         
-        janela2['expressao'].update("Professor, faça uma Expressão!")
-        janela2['professor'].update(text_color="black", font=('Poppins', 20, "bold"))                      
+        janela2['expressao'].update("Mestre, faça uma Expressão!")
+        janela2['mestre'].update(text_color="black", font=('Poppins', 20, "bold"))                      
 
-def profRec(janela2, i, n, nome, neutral=0):  # Captura da tela do professor
-    vid = cv2.VideoCapture(-1)
+def mestreCaptura(janela2, i, n, nome, neutral=0):  # Captura da tela do mestre
+    vid = cv2.VideoCapture(0)
     maior = 0
     frame_dic = {}
     emotion = ""
@@ -238,15 +218,14 @@ def profRec(janela2, i, n, nome, neutral=0):  # Captura da tela do professor
     emotions = []
     emocao = ""
 
-    # "Atenção Professor, é a sua vez!",
-    nextTurn("professor", janela2, i, n, nome)
+    # "Atenção Mestre, é a sua vez!",
+    nextTurn("mestre", janela2, i, n, nome)
 
     current_time = 0
     start_time = time_as_int()
 
-    while current_time <= 500:  # Timer 5 segundos de Captura das expressões do Professor
+    while current_time <= 500:  # Timer 5 segundos de Captura das expressões do mestre
         event2, values2 = janela2.read(timeout=1)
-
         janela2['contador'].update('{:02d}.{:02d}'.format(
             (current_time // 100) % 60, current_time % 100))
 
@@ -259,7 +238,7 @@ def profRec(janela2, i, n, nome, neutral=0):  # Captura da tela do professor
             if event2 == sg.WIN_CLOSED:
                 vid.release()
                 janela2.close()
-                exit(0)
+                sys.exit()
 
             emoproba = 0
             emolabelProf = ""
@@ -277,7 +256,7 @@ def profRec(janela2, i, n, nome, neutral=0):  # Captura da tela do professor
 
                 emocao = translateEmo(emolabelProf) # Traduz o emolabel
 
-                janela2['OutProfessor'].update(
+                janela2['OutMestre'].update(
                     emocao,  text_color="black", font=("Poppins", 25, "bold"))
 
             # Capta as expressões diferentes de neutro e com 70% do emoproba
@@ -289,7 +268,7 @@ def profRec(janela2, i, n, nome, neutral=0):  # Captura da tela do professor
                     frame_dic[emolabelProf] = frame_cap
 
             imgbytes = cv2.imencode('.png', frame_cap)[1].tobytes()
-            janela2['camProfessor'].update(data=imgbytes)
+            janela2['camMestre'].update(data=imgbytes)
 
         except Exception as err:
             print(err)
@@ -312,25 +291,30 @@ def profRec(janela2, i, n, nome, neutral=0):  # Captura da tela do professor
 
         while current_time <= 500: # Timer de delay e update
             event, values = janela2.read(timeout=1)
-            janela2['camProfessor'].update(filename="images/teacher.png")
-            janela2['OutProfessor'].update(
+            
+            if event == sg.WIN_CLOSED:
+                janela2.close()
+                sys.exit()
+            
+            janela2['camMestre'].update(filename="images/teacher.png")
+            janela2['OutMestre'].update(
                 "Tente Novamente", text_color="#D4181A", font=("Poppins", 25, "bold"))
             current_time = time_as_int() - start_time
 
         start_time = time_as_int()
         vid.release() # Interrompe a captura do RMN
-        emotion = profRec(janela2, i, n, nome, neutral)
+        emotion = mestreCaptura(janela2, i, n, nome, neutral)
 
     emocao = translateEmo(emotion)
 
-    janela2['OutProfessor'].update(
+    janela2['OutMestre'].update(
         emocao, text_color="black", font=("Poppins", 25, "bold"))
 
     # Função que capta o frame de acordo com expressão de maior frequência
-    for key in frame_dic:   # Guarda a imagem do professor
+    for key in frame_dic:   # Guarda a imagem do mestre
         if key == emotion:
             img_frame = cv2.imencode('.png', frame_dic[key])[1].tobytes()
-            janela2['camProfessor'].update(data=img_frame)
+            janela2['camMestre'].update(data=img_frame)
 
     vid.release()
     return emotion
@@ -343,14 +327,14 @@ def alunoRec(janela1, janela2, n, nome):  # Captura das expressôes do Aluno
         results = []
         result = {}
 
-        emo_p = profRec(janela2, i, n, nome) # Chama a captura do Professor 
+        emo_p = mestreCaptura(janela2, i, n, nome) # Chama a captura do mestre 
 
         # Caso só tenha sido gerado neutro ele retorna -1 para retornar ao menu
         if(emo_p == -1):
             janela2.close()
             return -1
 
-        vid1 = cv2.VideoCapture(-1)
+        vid1 = cv2.VideoCapture(0)
 
         # "Atenção Aluno, é a sua vez!"
         nextTurn("aluno", janela2, i, n, nome)
@@ -358,21 +342,21 @@ def alunoRec(janela1, janela2, n, nome):  # Captura das expressôes do Aluno
         current_time = 0
         start_time = time_as_int()
 
-        # Captura e comparação de expressôes do Aluno com o Professor
+        # Captura e comparação de expressôes do Aluno com o mestre
         while True:
             ret, frame = vid1.read()
             if frame is None or ret is not True:
                 continue
 
             event, values = janela2.read(timeout=1)
-           
+
             janela2['aluno'].update(
                 text_color="black", font=('Poppins', 20, "bold"))
 
             if event == sg.WIN_CLOSED:
                 vid1.release()
                 janela2.close()
-                exit(0)
+                sys.exit()
 
             try:
                 emoproba = 0
@@ -403,9 +387,14 @@ def alunoRec(janela1, janela2, n, nome):  # Captura das expressôes do Aluno
                     score += 1 # Aumenta 1 ponto
                     while current_time <= 500: # Timer de delay e update
                         event, values = janela2.read(timeout=1)
+                        
+                        if event == sg.WIN_CLOSED:
+                            janela2.close()
+                            sys.exit()
+                        
                         current_time = time_as_int() - start_time
 
-                        janela2['OutProfessor'].update(
+                        janela2['OutMestre'].update(
                             "Expressão Correta", text_color="white", font=("Poppins", 25, "bold"))
                         janela2['OutAluno'].update(
                             "Expressão Correta", text_color="#19D342", font=("Poppins", 25, "bold"))
@@ -421,9 +410,14 @@ def alunoRec(janela1, janela2, n, nome):  # Captura das expressôes do Aluno
 
                     while current_time <= 500: # Timer de delay e update
                         event, values = janela2.read(timeout=1)
+                        
+                        if event == sg.WIN_CLOSED:
+                            janela2.close()
+                            sys.exit()
+                                    
                         current_time = time_as_int() - start_time
 
-                        janela2['OutProfessor'].update(
+                        janela2['OutMestre'].update(
                             "Tempo Esgotado", text_color="white", font=("Poppins", 25, "bold"))
                         janela2['OutAluno'].update(
                             "Tempo Esgotado", text_color="#D4181A", font=("Poppins", 25, "bold"))
@@ -436,114 +430,112 @@ def alunoRec(janela1, janela2, n, nome):  # Captura das expressôes do Aluno
                 continue
         vid1.release()
         janela2['camAluno'].update(filename="images/user.png")
-        janela2['camProfessor'].update(filename="images/teacher.png")
+        janela2['camMestre'].update(filename="images/teacher.png")
     janela2.close()
+    
     return score
 
 ############################################# MENU #################################################33
 
-janela = janela_termos()
-event, values = janela.read() # Mostra a janela com os termos
-if event == sg.WIN_CLOSED:
-    janela.close()
+while aux == False:
 
-if event == "Sim":
+    # Chama as janelas
+    aux_confirm = 0
 
-    while aux == False:
+    janela1 = janela_inicio()
+    janela5 = janela_final_saida()
 
-        # Chama as janelas
-        aux_confirm = 0
+    # janela.close()
+    event, values = janela1.read() # Mostra a janela do Menu
 
-    
-        janela1 = janela_inicio()
-        janela5 = janela_final_saida()
+    if event == "Sair":
+        event5, values5 = janela5.read() # Mostra a janela de confirmação de saida
+        if event5 == "Sim":
+            sys.exit()
+        if event5 == "Não":
+            janela5.close()
+            janela1.close()
+        if event5 == sg.WIN_CLOSED:
+            janela5.close()
+            janela1.close()
 
-        
-        janela.close()
-        event, values = janela1.read() # Mostra a janela do Menu
+    if event == sg.WIN_CLOSED:
+        aux = True
+        sys.exit()
 
-        if event == "Sair":
-            event5, values5 = janela5.read() # Mostra a janela de confirmação de saida
-            if event5 == "Sim":
-                exit(0)
-            if event5 == "Não":
-                janela5.close()
-                janela1.close()
-            if event5 == sg.WIN_CLOSED:
-                janela5.close()
-                janela1.close()
-
+    if event == "Instruções":
+        janela1.close()
+        janela3 = janela_instruction() 
+        event, values = janela3.read() # Nostra a janela com as Instruções
         if event == sg.WIN_CLOSED:
-            aux = True
-            exit(0)
+            janela3.close()
+        if event == "Voltar":
+            janela3.close()
+    elif event == "Jogar":
+        start_time = time_as_int()
+        
+        janela1.close()
 
-        if event == "Instruções":
-            janela1.close()
-            janela3 = janela_instruction() 
-            event, values = janela3.read() # Nostra a janela com as Instruções
-            if event == "Voltar":
-                janela3.close()
-        elif event == "Jogar":
-            start_time = time_as_int()
-            
-            janela1.close()
+        janela2 = janela_jogo()
+        janela7 = janela_definicao()
+        # janela8 = janela_carregamento()
 
-            janela2 = janela_jogo()
-            janela7 = janela_definicao()
-            janela8 = janela_carregamento()
+        while aux_confirm == 0:
 
-            while aux_confirm == 0:
+            event7, values7 = janela7.read(timeout=1) # Mostra a janela de definição do nome e número de fases 
+            if event7 == sg.WIN_CLOSED:
+                janela7.close()
+                aux_confirm = 1
+            if event7 == 'Jogar':
+                nome = values7['nome']
+                n = values7['nfases']
 
-                event7, values7 = janela7.read(timeout=1) # Mostra a janela de definição do nome e número de fases 
-                if event7 == 'Jogar':
-                    nome = values7['nome']
-                    n = values7['nfases']
+                # Impede do usuário iniciar o programa com um nome e um número de fases inválido
 
-                    # Impede do usuário iniciar o programa com um nome e um número de fases inválido
-
-                    if(n != ''):
-                        if(int(n) > 0 and int(n) <= 10 and len(nome) > 0 and len(nome) <= 10): 
-                            janela7.close()
-                            
-                            # Chama o jogo 
-                            score = alunoRec(janela1, janela2, n, nome)
-                            
-                            # Retorna pro Menu
-                            if score == -1:
-                                break
-                            else:
-
-                                janela4 = janela_final()
-
-                                while True:
-                                    event, values = janela4.read(timeout=10) # Mostra a janela final com os pontos
-
-                                    if score == 0:
-                                        janela4['mensagem'].update(
-                                            "Mais sorte na próxima!")
-                                    elif score <= int(n)/2:
-                                        janela4['mensagem'].update("Quase lá, tente novamente!")
-                                    elif score == int(n):
-                                        janela4['mensagem'].update("Parabéns "+ nome +"!")
-
-                                    janela4['scorefinal'].update(score)
-
-                                    if event == sg.WIN_CLOSED:
-                                        exit(0)
-
-                                    if event == "Voltar":
-                                        janela4.close()
-                                        aux_confirm = 1
-                                        break
-
+                if(n != ''):
+                    if(int(n) > 0 and int(n) <= 10 and len(nome) > 0 and len(nome) <= 10): 
+                        janela7.close()
+                        
+                        # Chama o jogo 
+                        score = alunoRec(janela1, janela2, n, nome)
+                        
+                        # Retorna pro Menu
+                        if score == -1:
+                            break
                         else:
-                            continue
 
-                elif event7 == 'Voltar':
-                    janela7.close()
-                    break
-                    # continue
+                            janela4 = janela_final()
 
-elif event == 'Não':
-    janela.close()
+                            while True:
+                                event, values = janela4.read(timeout=10) # Mostra a janela final com os pontos
+
+                                if score == 0:
+                                    janela4['acertos'].update(filename="images/gameover.png")
+                                    janela4['mensagem'].update(
+                                        "Mais sorte na próxima!")
+                                elif score <= int(n)/2:
+                                    janela4['acertos'].update(filename="images/palmas.png")
+                                    janela4['mensagem'].update("Quase lá, tente novamente!")
+                                elif score == int(n):
+                                    janela4['acertos'].update(filename="images/crown.png")
+                                    janela4['mensagem'].update("Parabéns "+ nome +"!")
+
+                                janela4['scorefinal'].update(score)
+
+                                if event == sg.WIN_CLOSED:
+                                    sys.exit()
+
+                                if event == "Voltar":
+                                    janela4.close()
+                                    aux_confirm = 1
+                                    break
+
+                    else:
+                        continue
+
+            elif event7 == 'Voltar':
+                janela7.close()
+                break
+                # continue
 cv2.destroyAllWindows()
+
