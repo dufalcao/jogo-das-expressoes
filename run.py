@@ -34,7 +34,7 @@ def janela_inicio():  # Janela de Menu
                     
             [sg.Image(filename='images/ptilogo.png', size=(80, 80), background_color="#505A9A")],
     ]
-    return sg.Window("LabdeIA-PTI", layout=layout, size=(800, 600), element_justification='center', location=(600, 150))
+    return sg.Window("LabdeIA-PTI", layout=layout, size=(800, 600), element_justification='center', location=(2000, 150))
 
 def janela_definicao(): # Janela de entrada de dados(nome, número de fases)
     sg.theme('Reddit')
@@ -50,7 +50,7 @@ def janela_definicao(): # Janela de entrada de dados(nome, número de fases)
         sg.Button('', image_data=button.button_voltar_small, key = 'Voltar', button_color=(sg.theme_background_color(), sg.theme_background_color()), border_width=0)],
 
     ]
-    return sg.Window("LabdeIA-PTI", layout=layout, size=(400, 200), element_justification='center', location=(800, 300))
+    return sg.Window("LabdeIA-PTI", layout=layout, size=(400, 200), element_justification='center', location=(2200, 300))
 
 def janela_final():
     layout = [
@@ -62,7 +62,7 @@ def janela_final():
         [sg.Button('', image_data=button.button_voltar, key = 'Voltar', button_color=(sg.theme_background_color(), sg.theme_background_color()), border_width=0)],
         [sg.Image(filename='images/ptilogo.png', size=(80, 80))],
     ]
-    return sg.Window("LabdeIA-PTI", layout=layout, size=(600, 400), element_justification='center', location=(700, 300))
+    return sg.Window("LabdeIA-PTI", layout=layout, size=(600, 400), element_justification='center', location=(2100, 300))
 
 def janela_jogo():  # Janela do jogo na perspectiva do Aluno
     sg.theme('Reddit')
@@ -96,7 +96,7 @@ def janela_jogo():  # Janela do jogo na perspectiva do Aluno
             "Poppins", 20, 'bold')), sg.Text('0', font=("Poppins", 20, 'bold'), key='scorenum')],
     ]
     return sg.Window("LabdeIA-PTI", layout=layout, element_justification='c', size=(
-        1370, 800), location=(300, 50))
+        1370, 800), location=(1750, 50))
 
 def janela_instruction():  # Janela informanto o conjunto de instruções do jogo
     sg.theme('Reddit')
@@ -105,7 +105,7 @@ def janela_instruction():  # Janela informanto o conjunto de instruções do jog
         [sg.Image('images/rules.png', size=(700, 370))],
         [sg.Button('', image_data=button.button_voltar, key = 'Voltar', button_color=(sg.theme_background_color(), sg.theme_background_color()), border_width=0)],
     ]
-    return sg.Window("LabdeIA-PTI", layout=layout, size=(800, 600), element_justification='center', location=(600, 150))
+    return sg.Window("LabdeIA-PTI", layout=layout, size=(800, 600), element_justification='center', location=(2000, 150))
 
 def janela_final_saida():  # Janela de confirmação de saida
     sg.theme('Reddit')
@@ -116,7 +116,7 @@ def janela_final_saida():  # Janela de confirmação de saida
         [sg.Button('', image_data=button.button_sim, key = 'Sim', button_color=(sg.theme_background_color(), sg.theme_background_color()), border_width=0),
         sg.Button('', image_data=button.button_nao, key = 'Não', button_color=(sg.theme_background_color(), sg.theme_background_color()), border_width=0)],
     ]
-    return sg.Window("LabdeIA-PTI", layout=layout, size=(400, 200), element_justification='center', location=(800, 300))
+    return sg.Window("LabdeIA-PTI", layout=layout, size=(400, 200), element_justification='center', location=(2200,300))
 
 ############################################ FUNCIONALIDADES ###################################################3
 
